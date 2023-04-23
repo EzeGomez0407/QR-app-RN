@@ -1,10 +1,40 @@
 import { StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import TitleFrame from "../Components/TitleFrame";
 import theme from "../theme";
-// import { Link } from "react-router-native";
+import { getNetworkStateAsync } from "expo-network";
+import Toast from "react-native-root-toast";
 
 export default function Main({ navigation }) {
+  const [isConnected, setIsConnected] = useState(true);
+
+  useEffect(() => {
+    const checkNetworkState = async () => {
+      const networkState = await getNetworkStateAsync();
+      setIsConnected(networkState.isConnected);
+    };
+
+    checkNetworkState();
+  }, []);
+
+  const handlerSelection = () => {
+    if (isConnected) {
+      navigation.navigate("input-link");
+    } else {
+      Toast.show("Debes estar conectado a internet para crear un QR", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.CENTER,
+        backgroundColor: "#ff3734",
+        opacity: 0.8,
+        textColor: "#fff",
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 500,
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <TitleFrame text="Elije que guardará tu" textResalt="QR" />
@@ -12,24 +42,28 @@ export default function Main({ navigation }) {
       <View style={styles.containerElection}>
         <View style={styles.parElection}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("input-link")}
+            onPress={handlerSelection}
             style={styles.touchElection}
             // underlayColor={"#435B8A"}
           >
             <Text style={styles.textElection}>Link</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/*  <TouchableOpacity
             onPress={() => navigation.navigate("input-image")}
             style={styles.touchElection}
             // underlayColor={"#435B8A"}
           >
             <Text style={styles.textElection}>Image</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         <View style={styles.parElection}>
-          <TouchableOpacity
+          <Text style={styles.textTemporary}>
+            En próximas actualizaciones se van a ir habilitando más opciones,
+            como por ejemplo subir imágenes
+          </Text>
+          {/* <TouchableOpacity
             onPress={() => navigation.navigate("input-video")}
             style={styles.touchElection}
             // underlayColor={"#435B8A"}
@@ -42,7 +76,7 @@ export default function Main({ navigation }) {
             // underlayColor={"#435B8A"}
           >
             <Text style={styles.textElection}>Zip</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     </View>
@@ -83,9 +117,14 @@ const styles = StyleSheet.create({
   parElection: {
     width: "100%",
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
   },
   textElection: {
     color: theme.colors.colorWhite,
+  },
+  textTemporary: {
+    fontSize: 11,
+    textAlign: "center",
+    color: "#448",
   },
 });

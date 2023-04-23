@@ -3,10 +3,11 @@ const theme = {
     colorGeneral: "#084B68",
     colorBackground: "#F5F5F5",
     colorSpecial: "#1B59F9",
-    // #859CDC
-    // #2F8B82          Colores especeiales
-    // #19647E
-    colorSecundary: "#476C7B",
+    // 1B59F9
+    // 859CDC
+    // 2F8B82          Colores especeiales
+    // 19647E
+    colorSecundary: "#084B68",
     colorWhite: "#FFFFFF",
     colorTextTitle: "#000000",
   },

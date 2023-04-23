@@ -5,9 +5,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import * as DocumentPicker from "expo-document-picker";
-import axios from "axios";
+import { isWebUri } from "valid-url";
+import Toast from "react-native-root-toast";
 
 import { AppContext } from "../../AppContext";
 import theme from "../theme";
@@ -34,12 +35,6 @@ const pickDocument = async (setData) => {
   }
 };
 
-// Funcion en la que llamamos a la API generadora de QR=============
-const QRProcess = (setData, url) => {
-  setData({ result: null, value: url });
-};
-// --------------------------------------------------------------
-
 export default function BoxResource({
   type,
   placeholder,
@@ -48,7 +43,45 @@ export default function BoxResource({
 }) {
   const { data, setData } = useContext(AppContext);
   const [urlForQR, setUrlForQR] = useState("");
-  const [fileForQR, setFileForQR] = useState();
+  // const [fileForQR, setFileForQR] = useState();
+  // const urlForQR = useRef(null);
+
+  const handlerCleanField = () => {
+    setUrlForQR("");
+  };
+
+  const handleTextoChange = (newUrl) => {
+    currentText = newUrl;
+    setUrlForQR(currentText);
+  };
+
+  const handlerNextToQR = () => {
+    const link = urlForQR;
+    console.log(link);
+    const isValidLink = isWebUri(link);
+
+    if (isValidLink) {
+      setData({
+        resource: link,
+      });
+      navigation.navigate("DownloadQR");
+      // console.log(data);
+      return;
+    } else {
+      Toast.show("Link no válido", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.TOP,
+        backgroundColor: "#ff3734",
+        opacity: 1,
+        textColor: "#fff",
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 500,
+      });
+      return;
+    }
+  };
 
   return (
     <View style={styles.containerElection}>
@@ -62,10 +95,10 @@ export default function BoxResource({
       )}
       {type === "URL" ? (
         <TextInput
-          style={styles.inputText}
           value={urlForQR}
+          style={styles.inputText}
           placeholder={placeholder}
-          onChangeText={setUrlForQR}
+          onChangeText={handleTextoChange}
         />
       ) : (
         <TouchableOpacity style={styles.btnFileLoaded} onPress={pickDocument}>
@@ -73,10 +106,15 @@ export default function BoxResource({
         </TouchableOpacity>
       )}
       <TouchableOpacity
+        style={styles.btnCleanField}
+        onPress={handlerCleanField}
+      >
+        <Text style={styles.textCleanField}>Limpiar Campo</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
         style={styles.nextBtn}
         onPress={() => {
-          QRProcess(setData, "https://www3.animeflv.net/ver/dragon-ball-z-268");
-          navigation.navigate("DownloadQR");
+          handlerNextToQR();
         }}
       >
         <Text style={styles.nextBtnText}>Siguiente</Text>
@@ -143,6 +181,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 40,
     elevation: 10,
+  },
+  btnCleanField: {
+    marginVertical: 20,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    backgroundColor: "#ffffff",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 20,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 40,
+    elevation: 10,
+  },
+  textCleanField: {
+    fontSize: 11,
+    color: "#e46a2a",
   },
   btnFileLoaded: {
     paddingVertical: 5,

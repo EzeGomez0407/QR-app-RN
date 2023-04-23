@@ -1,82 +1,77 @@
 import * as FileSystem from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
+import * as Print from "expo-print";
+
+import Toast from "react-native-root-toast";
 
 export async function downloadQRimgae(img) {
   const blob = img.split("data:image/png;base64,")[1];
-  //   console.log(blob);
   const nombreArchivo = `QR_${Date.now()}.png`;
-  const rutaCarpeta = `${FileSystem.documentDirectory}YourQR/`;
+  const rutaCarpeta = FileSystem.documentDirectory + "Download/";
+  const { status } = await MediaLibrary.requestPermissionsAsync();
 
-  console.log(FileSystem.documentDirectory);
-
-  try {
-    const infoCarpeta = await FileSystem.getInfoAsync(rutaCarpeta);
-    if (!infoCarpeta.exists) {
-      await FileSystem.makeDirectoryAsync(rutaCarpeta, { intermediates: true });
-    }
-    await FileSystem.writeAsStringAsync(
-      `${rutaCarpeta}${nombreArchivo}`,
-      blob,
-      {
-        encoding: FileSystem.EncodingType.Base64,
+  if (status === "granted") {
+    try {
+      const infoCarpeta = await FileSystem.getInfoAsync(rutaCarpeta);
+      if (!infoCarpeta.exists) {
+        await FileSystem.makeDirectoryAsync(rutaCarpeta, {
+          intermediates: true,
+        });
       }
-    );
-    // ================================================
-    // const archivo = await FileSystem.readAsStringAsync(
-    //   `${rutaCarpeta}${nombreArchivo}`
-    // );
-    // console.log("Contenido del archivo:", archivo);
 
-    // console.log("QR guardado exitosamente.");
-  } catch (error) {
-    console.error("Error al guardar el QR:", error);
+      const filePath = `${rutaCarpeta}${nombreArchivo}`;
+      await FileSystem.writeAsStringAsync(filePath, blob, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      await MediaLibrary.saveToLibraryAsync(filePath);
+
+      Toast.show("QR descargado con éxito", {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.TOP,
+        backgroundColor: "#37f88f",
+        opacity: 1,
+        textColor: "#000",
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 500,
+      });
+
+      console.log("QR guardado exitosamente.");
+    } catch (error) {
+      console.error("Error al guardar el QR:", error);
+    }
+  } else {
+    console.log("No se han otorgado los permisos necesarios.");
   }
 }
 
-// ...
+export async function downloadQRpdf(img) {
+  const { status } = await MediaLibrary.requestPermissionsAsync();
 
-/* export const saveImage = async () => {
-
+  if (status === "granted") {
     try {
-        const rootPath = Platform.OS === 'android' ? RNFetchBlob.fs.dirs.SDCardDir : RNFetchBlob.fs.dirs.DocumentDir;
-      const folderPath = `${rootPath}/QR`;
+      const pdfContent = `
+      <html>
+        <head>
+          <title>QR ${Date.now()}</title>
+        </head>
+        <body>
+          <img src="${img}" style="width:400px;height:400px"/>
+        </body>
+      </html>
+      `;
 
-      const dirExists = await RNFS.exists(
-        `${RNFS.DocumentDirectoryPath}/Your codeQR`
-      );
-    
-      if (!dirExists) {
-        await RNFS.mkdir(`${RNFS.DocumentDirectoryPath}/Your codeQR`);
-      }
-    
-      const filePath = `${RNFS.DocumentDirectoryPath}/Your codeQR/qr-image.png`;
-      await RNFS.writeFile(filePath, blob, "base64");
-    
-      const exists = await RNFS.exists(filePath);
-      if (exists) {
-        console.log("Image saved successfully");
-      } else {
-        console.log("Failed to save image");
-      }
-    } catch (error) {
-        
-    }
+      const pdfDocument = await Print.printAsync({ html: pdfContent });
 
-};
-const createFolder = async () => {
-    try {
-      
-  
-      // Revisar si la carpeta existe, si no existe, crearla
-      const isExist = await RNFetchBlob.fs.isDir(folderPath);
-      if (!isExist) {
-        await RNFetchBlob.fs.mkdir(folderPath);
-        console.log('Carpeta creada:', folderPath);
-      } else {
-        console.log('La carpeta ya existe:', folderPath);
-      }
+      const pdfBase64 = new Blob([pdfDocument], { type: "application/pdf" });
+
+      console.log("QR guardado exitosamente.");
     } catch (error) {
-      console.log('Error al crear la carpeta:', error);
+      console.error("Error al guardar el QR:", error);
     }
+  } else {
+    console.log("No se han otorgado los permisos necesarios.");
   }
-  
-  createFolder(); */
+}

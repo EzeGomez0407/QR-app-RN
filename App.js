@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, View } from "react-native";
-// import { NativeRouter, Route, Routes } from "react-router-native";
+import { RootSiblingParent } from "react-native-root-siblings";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { NavigationContainer } from "@react-navigation/native";
@@ -41,24 +41,29 @@ export default function App() {
 
   return (
     <AppProvider>
-      <NavigationContainer style={styles.container} onLayout={onLayoutRootView}>
-        <NavBar />
-        <Stack.Navigator>
-          <Stack.Screen name="Home" options={{}} component={Main} />
-          <Stack.Screen name="input-link" component={InputLink} />
-          <Stack.Screen name="input-image" component={InputImage} />
-          <Stack.Screen name="input-video" component={InputVideo} />
-          <Stack.Screen name="input-zip" component={InputZip} />
-          <Stack.Screen name="DownloadQR" component={RouteDownloadQR} />
-        </Stack.Navigator>
-        <Footer />
-        <StatusBar
-          style="inverted"
-          backgroundColor="#084B68"
-          hidden={false}
-          translucent={false}
-        />
-      </NavigationContainer>
+      <RootSiblingParent>
+        <NavigationContainer
+          style={styles.container}
+          onLayout={onLayoutRootView}
+        >
+          <NavBar />
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Home" component={Main} />
+            <Stack.Screen name="input-link" component={InputLink} />
+            <Stack.Screen name="input-image" component={InputImage} />
+            <Stack.Screen name="input-video" component={InputVideo} />
+            <Stack.Screen name="input-zip" component={InputZip} />
+            <Stack.Screen name="DownloadQR" component={RouteDownloadQR} />
+          </Stack.Navigator>
+          <Footer />
+          <StatusBar
+            style="inverted"
+            backgroundColor="#084B68"
+            hidden={false}
+            translucent={false}
+          />
+        </NavigationContainer>
+      </RootSiblingParent>
     </AppProvider>
   );
 }

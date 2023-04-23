@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "QR-App",
+    "permissions": ["camera", "mediaLibrary"],
     "slug": "QR-App",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -11,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
@@ -21,10 +20,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "QR.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8e597584-4150-4942-9756-e6f3efaf092e"
+      }
     }
   }
 }

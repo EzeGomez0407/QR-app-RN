@@ -1,22 +1,21 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
-import QRCode from "react-native-qrcode-svg";
+import React, { useState, useContext } from "react";
 import axios from "axios";
-import { AppContext } from "../../AppContext";
+
 import BoxSelect from "../Components/BoxSelect";
 import TitleFrame from "../Components/TitleFrame";
+import { AppContext } from "../../AppContext";
 
-// import RNFetchBlob from "rn-fetch-blob";
-
-import { downloadQRimgae } from "../DownloadQRFunction";
+import { downloadQRimgae, downloadQRpdf } from "../DownloadQRFunction";
 
 export default function RouteDownloadQR({ navigation }) {
   const [img, setImg] = useState();
-
+  const { data, setData } = useContext(AppContext);
+  console.log(data);
   const qrImg = () => {
     axios
       .get(
-        "http://api.qrserver.com/v1/create-qr-code/?data=https://www3.animeflv.net/ver/dragon-ball-z-268&size=300x300",
+        `http://api.qrserver.com/v1/create-qr-code/?data=${data.resource}&size=300x300`,
         {
           responseType: "blob",
         }
@@ -26,7 +25,7 @@ export default function RouteDownloadQR({ navigation }) {
         const reader = new FileReader();
         reader.onload = () => {
           const url = reader.result;
-          console.log(url);
+          // console.log(url);
           setImg(url);
           // Utiliza la URL para mostrar la imagen en el componente Image
         };
@@ -44,13 +43,19 @@ export default function RouteDownloadQR({ navigation }) {
   return (
     <View style={styles.contain}>
       <TitleFrame text="Descarga tu " textResalt="QR" />
+      <Image style={styles.img} source={{ uri: img }} />
       <BoxSelect>
-        <Image style={styles.img} source={{ uri: img }} />
         <TouchableOpacity
           style={styles.btnOption}
           onPress={() => downloadQRimgae(img)}
         >
-          <Text style={styles.btnOptionText}>Guardar</Text>
+          <Text style={styles.btnOptionText}>Guardar como Imagen</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.btnOption}
+          onPress={() => downloadQRpdf(img)}
+        >
+          <Text style={styles.btnOptionText}>Guardar como PDF</Text>
         </TouchableOpacity>
       </BoxSelect>
     </View>
@@ -76,7 +81,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   img: {
-    width: 50,
-    height: 50,
+    width: 70,
+    height: 70,
   },
 });
